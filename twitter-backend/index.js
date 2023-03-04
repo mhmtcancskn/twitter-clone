@@ -4,6 +4,7 @@ const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
 app.use(cors());
 
+
 const client = new MongoClient('mongodb+srv://mhmtcancoskun:foqE7ylrtUm309BZ@cluster0.gvx5k43.mongodb.net/?retryWrites=true&w=majority');
 
 app.get("/me", function (req, res) {
