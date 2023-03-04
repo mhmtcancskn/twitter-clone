@@ -3,9 +3,9 @@ const app = express();
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
 app.use(cors());
+require('dotenv').config();
 
-
-const client = new MongoClient('mongodb+srv://mhmtcancoskun:foqE7ylrtUm309BZ@cluster0.gvx5k43.mongodb.net/?retryWrites=true&w=majority');
+const client = new MongoClient(process.env.MONGODB_URI);
 
 app.get("/me", function (req, res) {
     console.log("bir istek geldi");
