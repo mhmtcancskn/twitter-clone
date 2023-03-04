@@ -47,4 +47,3 @@ app.listen(4040, function () {
 
 
 // çalıştırma: node index.js
-// veritabanı bağlantısı: mongodb+srv://memo:djRNLWbzt6rHA2SL@cluster0.gvx5k43.mongodb.net/?retryWrites=true&w=majority
