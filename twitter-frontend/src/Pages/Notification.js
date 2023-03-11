@@ -19,9 +19,6 @@ export const Notification = () => {
                     <Tab fontWeight={"700"} >Onaylanmış</Tab>
                     <Tab fontWeight={"700"} >Bahsedenler</Tab>
                 </TabList>
-
-
-
                 <TabPanels >
                     <TabPanel padding={"0"}>
                         <NotificationItem isLike={false} text="Yeni takip etti" user={{ name: "Haydar" }} />

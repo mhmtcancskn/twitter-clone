@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Twittes from '../components/Twittes';
 import {
     Tabs, TabList, TabPanels, Tab, TabPanel, Flex, Image, Box,
@@ -14,20 +14,68 @@ import {
     Button,
     Tag,
     TagLabel,
-    TagRightIcon
+    TagRightIcon,
+    useToast
 } from '@chakra-ui/react'
 import Layout from '../components/Layout';
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { hydrate } from 'react-dom';
+import axios from 'axios';
+import AppConst from '../const';
 
 
 export const Home = () => {
+    const toast = useToast()
     const [tweetInputVal, setTweetInputVal] = useState("");
-    const [twittes, setTwittes] = useState([
-   
-   
-    ])
+    const [twittes, setTwittes] = useState([]);
 
+    useEffect(() => {
+        loadTwits();
+    }, []);
+
+    async function loadTwits(){
+        var twittes = await axios.get(`${AppConst.API_URL}/twittes`, {headers:{token: AppConst.USER_TOKEN}});
+        setTwittes(twittes.data);
+    }
+
+    async function postTwits(){
+        const body_data = {
+            content: tweetInputVal
+        }
+        const headers = {
+            token: AppConst.USER_TOKEN
+        }
+        var res = await axios.post(`${AppConst.API_URL}/twittes`,body_data, {headers} )
+        
+        let copy_twittes = Array.from(twittes);
+        copy_twittes.unshift(res.data);
+        setTwittes(copy_twittes);
+
+        toast({
+            title: '',
+            description: "Yeni twit eklendi",
+            status: 'success',
+            duration: 3000,
+            isClosable: true
+          })
+
+        setTweetInputVal("");
+    }
+
+    async function likeTwit(twit_id){
+        const headers = {
+            token: AppConst.USER_TOKEN
+        }
+        var res = await axios.post(`${AppConst.API_URL}/${twit_id}/like`, null, {headers});
+        
+        let copy_twittes = Array.from(twittes);
+        let findIndex = copy_twittes.findIndex(x => x._id === res.data._id);
+        if(findIndex !== -1){
+            copy_twittes[findIndex].liked_by_user = res.data.liked_by_user; 
+            copy_twittes[findIndex].likes = res.data.likes;
+        }
+        setTwittes(copy_twittes);
+    }
 
     return (
         <Layout>
@@ -86,23 +134,14 @@ export const Home = () => {
                             <Box width={"30px"} height="30px" marginRight={"10px"} />
                             <Flex flex="1" justifyContent={"flex-end"}>
                                 <Button
+                                    borderRadius={"50px"}
+                                    colorScheme="blue"
                                     onClick={() => {
                                         if(tweetInputVal === ""){
                                             return;
                                         }
 
-                                        let newTweet = {
-                                            user: {
-                                                name: "memo",
-                                                userName: "@memo"
-                                            },
-                                            content: tweetInputVal
-                                        }
-
-                                        let cloneTweet = Array.from(twittes);
-                                        cloneTweet.unshift(newTweet);
-                                        setTwittes(cloneTweet);
-                                        setTweetInputVal("");
+                                        postTwits();
                                     }}
                                 >Tweetle</Button>
                             </Flex>
@@ -119,12 +158,11 @@ export const Home = () => {
                         {
                             twittes.map((item, index) => {
                                 return <Twittes
-                                    key={index}
-                                    user={{
-                                        name: item.user.name,
-                                        userName: item.user.userName
+                                    key={item._id}
+                                    twit={item}
+                                    onLike={(id) => {
+                                        likeTwit(id);
                                     }}
-                                    content={item.content}
                                 />
                             })
                         }
